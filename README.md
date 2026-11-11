@@ -23,5 +23,12 @@ JSON on stdout, errors on stderr, exit 1 on failure.
 ## Notes
 - API requires the key on every request (`X-API-Key`); missing/bad key returns a structured `isError` tool payload, never a crash.
 - Rate limits: 60 req/min, 10 000/day per key. Unfiltered recipe searches use 12 requests.
-- Credit requirement: keep the "Data from ForeverDB.net" line when showing this data.
 - Recipe/item field names are typed defensively (no approved key existed at build time); `slimRecipe` falls back to `raw` if the API shape drifts.
+
+## Acknowledgements
+
+Data source: [ForeverDB.net](https://foreverdb.net). Per the [ForeverDB developer terms](https://foreverdb.net/developers), this project credits ForeverDB.net as the source, with a visible link, wherever the data is shown — every tool response ends with `Data from ForeverDB.net — https://foreverdb.net`.
+
+- The data is not resold and is not presented as this project's own; it is served read-only through the official ForeverDB API.
+- Data from the WoW Forever client is Blizzard Entertainment's. ForeverDB isn't affiliated with Blizzard Entertainment.
+- Classic data and in-game observations in API responses are labelled as such by ForeverDB (e.g. `seenInForever`); this server passes those labels through unmodified.

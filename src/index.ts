@@ -15,7 +15,11 @@ import {
 // stdout is reserved for JSON-RPC — log to stderr only.
 const client = new ForeverDBClient();
 
-const server = new McpServer({ name: "wow-forever-db", version: "1.0.0" });
+const server = new McpServer({
+  name: "wow-forever-db",
+  version: "1.0.0",
+  description: "WoW Forever item/recipe data via the ForeverDB API. Data from ForeverDB.net — https://foreverdb.net (credit required when shown).",
+});
 
 function ok(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 1) + `\n\n${CREDIT}` }] };
