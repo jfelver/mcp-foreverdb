@@ -3,6 +3,7 @@
 //   foreverdb-cli item "Copper" [limit]
 //   foreverdb-cli recipe "Elixir" [profession-slug] [limit]
 //   foreverdb-cli id items 19019
+//   foreverdb-cli get gathering/herbalism zone=Barrens     (any endpoint + query params)
 import { ForeverDBClient, ForeverDBApiError, FOREVERDB_PROFESSIONS, CREDIT } from "./client.js";
 
 const [cmd, arg1, arg2, arg3] = process.argv.slice(2);
@@ -33,8 +34,17 @@ async function main() {
     if (!arg1 || !arg2) throw new Error("usage: foreverdb-cli id <items|spells|quests|vendors|dungeons|itemsets> <id>");
     const res = await client.get(`${arg1}/${arg2}`);
     console.log(JSON.stringify(res.data, null, 1));
+  } else if (cmd === "get") {
+    if (!arg1) throw new Error('usage: foreverdb-cli get <path> [key=value …]  e.g. get "builds/latest" type=spell limit=5');
+    const params = process.argv
+      .slice(4)
+      .map((kv) => kv.split(/=(.*)/s))
+      .filter(([k]) => k)
+      .map(([k, v]) => [k, v ?? "true"] as [string, string]);
+    const res = await client.get(arg1, Object.fromEntries(params));
+    console.log(JSON.stringify(res, null, 1));
   } else {
-    throw new Error(`unknown command '${cmd ?? ""}' — use: item | recipe | id (see header comment)`);
+    throw new Error(`unknown command '${cmd ?? ""}' — use: item | recipe | id | get (see header comment)`);
   }
   console.error(CREDIT);
 }

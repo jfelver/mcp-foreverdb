@@ -9,6 +9,10 @@ export const FOREVERDB_PROFESSIONS = [
 ] as const;
 export type ProfessionSlug = (typeof FOREVERDB_PROFESSIONS)[number];
 
+// Slugs accepted by GET /gathering/{slug}
+export const FOREVERDB_GATHERING = ["herbalism", "mining", "skinning", "fishing"] as const;
+export type GatheringSlug = (typeof FOREVERDB_GATHERING)[number];
+
 export const CREDIT = "Data from ForeverDB.net — https://foreverdb.net";
 
 export class ForeverDBApiError extends Error {
@@ -37,7 +41,7 @@ export class ForeverDBClient {
     return Boolean(this.apiKey);
   }
 
-  async get<T>(path: string, params: Record<string, string | number | undefined> = {}): Promise<Envelope<T>> {
+  async get<T>(path: string, params: Record<string, string | number | boolean | undefined> = {}): Promise<Envelope<T>> {
     if (!this.apiKey) {
       throw new ForeverDBApiError(
         401,
@@ -71,13 +75,20 @@ export class ForeverDBClient {
 
 // --- Response shaping (keys are defensive; verified against live API once a key is available) ---
 
-/** Drop volatile/heavy per-item fields that blow up agent context. */
-export function slimItem(item: Record<string, unknown>): Record<string, unknown> {
+/** Drop volatile fields and empty values at any depth; icon URLs and beta/live diffs are noise for a text agent. */
+export function slimRow(item: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(item)) {
     if (["liveClient", "dataFromBuild", "tooltipHtml", "tooltip", "icon", "iconFileDataID"].includes(k)) continue;
-    if (v === null || v === "" || (Array.isArray(v) && v.length === 0)) continue;
-    out[k] = v;
+    if (v === null || v === "") continue;
+    if (Array.isArray(v)) {
+      if (v.length === 0) continue;
+      out[k] = v.map((x) => (x && typeof x === "object" ? slimRow(x as Record<string, unknown>) : x));
+    } else if (typeof v === "object") {
+      out[k] = slimRow(v as Record<string, unknown>);
+    } else {
+      out[k] = v;
+    }
   }
   return out;
 }
