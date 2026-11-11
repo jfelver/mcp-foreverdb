@@ -89,14 +89,17 @@ export function slimRecipe(r: Record<string, unknown>, profession: string): Reco
   for (const k of pick) if (r[k] !== undefined) out[k] = r[k];
   const lf = r.learnedFrom as Record<string, unknown> | undefined;
   if (lf) {
-    const sources = (lf.sources ?? []) as Array<Record<string, unknown>>;
-    out.learnedFrom = sources.map((s) => ({
-      type: s.type,
-      name: s.name,
-      zone: s.zone,
-      price: s.price,
-      seenInForever: s.seenInForever,
-    }));
+    const sources = lf.sources;
+    // Live API returns an object ({ways, quests, recipeItem, …}); the array form is a shape fallback.
+    if (Array.isArray(sources)) {
+      out.learnedFrom = sources.map((s) => {
+        const o = s as Record<string, unknown>;
+        return { type: o.type, name: o.name, zone: o.zone, price: o.price, seenInForever: o.seenInForever };
+      });
+    } else if (sources && typeof sources === "object") {
+      const { note: _note, ...rest } = sources as Record<string, unknown>; // note is the same boilerplate on every recipe
+      out.learnedFrom = rest;
+    }
   }
   // Keep anything we didn't recognise only when nothing matched (shape drift safety net).
   if (Object.keys(out).length === 1) return { profession, raw: r };

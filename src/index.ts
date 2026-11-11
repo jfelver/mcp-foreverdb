@@ -54,7 +54,9 @@ server.registerTool(
       const errors: string[] = [];
       results.forEach((r, i) => {
         if (r.status === "fulfilled") {
-          const rows = Array.isArray(r.value.data) ? r.value.data : [];
+          // /professions/{slug} returns an object ({slug, ranks, trainers, recipes}); recipes is the row list.
+          const payload = r.value.data as unknown as Record<string, unknown> | undefined;
+          const rows = Array.isArray(payload?.recipes) ? (payload.recipes as Record<string, unknown>[]) : [];
           for (const row of rows) if (typeof row === "object" && row) recipes.push(slimRecipe(row as Record<string, unknown>, slugs[i]));
         } else {
           errors.push(`${slugs[i]}: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`);

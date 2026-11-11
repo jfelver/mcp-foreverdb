@@ -21,7 +21,8 @@ async function main() {
     for (const slug of slugs) {
       try {
         const res = await client.get(`professions/${slug}`, { q: arg1, limit });
-        if (Array.isArray(res.data)) found.push(...res.data);
+        const recipes = (res.data as unknown as { recipes?: unknown[] } | undefined)?.recipes;
+        if (Array.isArray(recipes)) found.push(...recipes);
       } catch (e) {
         if (slugs.length === 1) throw e;
         console.error(`${slug}: ${e instanceof Error ? e.message : e}`);
