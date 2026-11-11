@@ -1,0 +1,27 @@
+{
+  "name": "mcp-foreverdb",
+  "version": "1.0.0",
+  "description": "MCP server for ForeverDB (WoW Forever) items/recipes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && chmod +x build/index.js build/cli.js",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "mcp-foreverdb": "./build/index.js",
+    "foreverdb-cli": "./build/cli.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}
